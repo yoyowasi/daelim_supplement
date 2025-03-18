@@ -8,4 +8,6 @@ class HomePage extends StatelessWidget {
       body: Center(child: Text('홈 페이지 내용')),
     );
   }
+
 }
+

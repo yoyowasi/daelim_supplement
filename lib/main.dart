@@ -1,33 +1,74 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'login_page.dart';
 import 'home_page.dart';
 import 'search_page.dart';
 import 'ai_doctor_page.dart';
 import 'my_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Colors.white, // 전체 배경색 변경
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.white, // AppBar 배경색 흰색으로 변경
-          elevation: 0, // 그림자 제거
-          titleTextStyle: TextStyle(color: Colors.black, fontSize: 20), // 글자색 검정
-          iconTheme: IconThemeData(color: Colors.black), // 아이콘 색 변경
-        ),
-      ),
-      home: MainScreen(),
+    return FutureBuilder(
+      future: _initialization,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return MaterialApp(
+            home: Scaffold(body: Center(child: CircularProgressIndicator())),
+          );
+        } else if (snapshot.hasError) {
+          return MaterialApp(
+            home: Scaffold(body: Center(child: Text("Firebase 초기화 오류!"))),
+          );
+        }
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+            scaffoldBackgroundColor: Colors.white,
+            appBarTheme: AppBarTheme(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              titleTextStyle: TextStyle(color: Colors.black, fontSize: 20),
+              iconTheme: IconThemeData(color: Colors.black),
+            ),
+          ),
+          home: AuthChecker(), // 로그인 상태 체크
+        );
+      },
     );
   }
 }
 
+/// 로그인 상태에 따라 페이지 결정
+class AuthChecker extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+        if (snapshot.hasData) {
+          return MainScreen(); // 로그인된 경우 메인 화면
+        }
+        return LoginPage(); // 로그인되지 않은 경우 로그인 페이지
+      },
+    );
+  }
+}
+
+/// 메인 화면 (바텀 네비게이션 포함)
 class MainScreen extends StatefulWidget {
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -45,14 +86,14 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // MainScreen 배경색 설정
+      backgroundColor: Colors.white,
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white, // 네비게이션 바 배경색 변경
-        type: BottomNavigationBarType.fixed, // 배경색 적용 안정화
+        backgroundColor: Colors.white,
+        type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
-        selectedItemColor: Colors.blue, // 선택된 아이템 색상
-        unselectedItemColor: Colors.grey, // 선택되지 않은 아이템 색상
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
         onTap: (index) {
           setState(() {
             _currentIndex = index;

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "605194738538",
+    "project_id": "daelim-capstone-3-2-1",
+    "storage_bucket": "daelim-capstone-3-2-1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:605194738538:android:9f38f1c3ca33c3d522a313",
+        "android_client_info": {
+          "package_name": "com.daelim.supplement_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAswn6VINhQkgETLMhRVGWhGGEAOkb8FBM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
